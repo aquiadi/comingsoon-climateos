@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 90%;
+            width: 100%;
+            padding: 2rem 1rem;
+        }
+
+        @media (min-width: 576px) {
+            .container {
+                max-width: 540px;
+                padding: 2rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                max-width: 500px;
+            }
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: #666;
+            margin-bottom: 2rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .email-form {
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .email-input {
+            width: 100%;
+            max-width: 100%;
+            padding: 14px 16px;
+            font-size: clamp(14px, 3vw, 16px);
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .email-input:focus {
+            border-color: #3498db;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: #3498db;
+            border: 2px solid #3498db;
+        }
+
+        .btn-secondary:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .notification {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        @media (max-width: 479px) {
+            .container {
+                padding: 1.5rem 1rem;
+                max-width: 95%;
+            }
+            
+            h1 {
+                margin-bottom: 0.8rem;
+            }
+            
+            .subtitle {
+                margin-bottom: 1.5rem;
+            }
+            
+            .email-input {
+                padding: 16px;
+                margin-bottom: 1rem;
+            }
+            
+            .btn {
+                padding: 16px 20px;
+                font-weight: 700;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .container {
+                padding: 1rem 0.5rem;
+            }
+            
+            .btn {
+                padding: 18px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Coming Soon</h1>
+        <p class="subtitle">We are busy working on something amazing</p>
+        
+        <form class="email-form" id="emailForm">
+            <input 
+                type="email" 
+                class="email-input" 
+                placeholder="Drop your email to stay updated"
+                required
+                id="emailInput"
+            >
+            <button type="submit" class="btn btn-primary">Notify Me</button>
+        </form>
+        
+        <a href="#" class="btn btn-secondary" id="demoBtn">Check Demo</a>
+        
+        <div class="notification" id="notification">
+            Thanks! We'll keep you updated.
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration - REPLACE WITH YOUR CONFIG
+        const firebaseConfig = {
+            apiKey: "your-api-key-here",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to save email to Firebase
+        async function saveEmail(email) {
+            try {
+                const docRef = await addDoc(collection(db, "email_subscribers"), {
+                    email: email,
+                    timestamp: serverTimestamp(),
+                    status: 'subscribed'
+                });
+                console.log("Email saved with ID: ", docRef.id);
+                return true;
+            } catch (error) {
+                console.error("Error adding email: ", error);
+                return false;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('emailForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('emailInput').value;
+            const submitBtn = document.querySelector('.btn-primary');
+            const notification = document.getElementById('notification');
+            
+            if (email) {
+                // Show loading state
+                submitBtn.textContent = 'Saving...';
+                submitBtn.disabled = true;
+                
+                // Save to Firebase
+                const success = await saveEmail(email);
+                
+                if (success) {
+                    // Success notification
+                    notification.textContent = 'Thanks! We\'ll keep you updated.';
+                    notification.style.backgroundColor = '#27ae60';
+                    notification.classList.add('show');
+                    
+                    // Clear form
+                    document.getElementById('emailInput').value = '';
+                } else {
+                    // Error notification
+                    notification.textContent = 'Sorry, there was an error. Please try again.';
+                    notification.style.backgroundColor = '#e74c3c';
+                    notification.classList.add('show');
+                }
+                
+                // Reset button
+                submitBtn.textContent = 'Notify Me';
+                submitBtn.disabled = false;
+                
+                // Hide notification after 3 seconds
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        });
+
+        document.getElementById('demoBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Demo coming soon!');
+        });
+    </script>
+</body>
+</html>
